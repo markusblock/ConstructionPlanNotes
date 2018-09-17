@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Construction Plan Notes</string>
+    <string name="pick_file">Pick file</string>
+    <string name="toast_pick_file_error">Unable to pick file. Check status of file manager.</string>
+    <string name="dialog_input_title">Comment</string>
+    <string name="dialog_input_default_text">Enter a comment here...</string>
+</resources>
