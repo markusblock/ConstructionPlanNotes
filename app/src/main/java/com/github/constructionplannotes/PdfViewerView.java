@@ -11,13 +11,14 @@ import android.util.Log;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnDrawListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PdfViewerView extends PDFView implements OnDrawListener {
 
     private static final String TAG = PdfViewerView.class.getSimpleName();
 
-    private TextPaint textPaint;
-    private float point1X, point1Y;
-    private String textToDraw;
+    private List<TextOnCanvasObject> textOnCanvasObjects;
 
     public PdfViewerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -25,16 +26,12 @@ public class PdfViewerView extends PDFView implements OnDrawListener {
     }
 
     private void init() {
-
+        textOnCanvasObjects = new ArrayList<>();
         resetView();
     }
 
     public void resetView(){
-
-        textToDraw=null;
-        point1X=0;
-        point1Y=0;
-
+        textOnCanvasObjects.clear();
         invalidate();
     }
 
@@ -42,31 +39,34 @@ public class PdfViewerView extends PDFView implements OnDrawListener {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(textToDraw!=null) {
-            float x = getCurrentXOffset() + point1X * getZoom();
-            float y = getCurrentYOffset() + point1Y * getZoom();
-            textPaint.setTextSize(30 * getZoom());
-            canvas.drawText(textToDraw, x, y, textPaint);
+        if(!textOnCanvasObjects.isEmpty()) {
 
-            Log.e(TAG, "Drawing text "+textToDraw);
-            Log.e(TAG, "Clickedon x/y "+point1X+"/"+point1Y);
-            Log.e(TAG, "Calculated x/y "+x+"/"+y);
-            Log.e(TAG, "Zoom: "+getZoom());
-            Log.e(TAG, "CurrentOffset: "+getCurrentXOffset()+"/"+getCurrentYOffset());
-            Log.e(TAG, "Translation: "+getTranslationX()+"/"+getTranslationY());
+            for (TextOnCanvasObject textOnCanvasObject:textOnCanvasObjects) {
+                float x = getCurrentXOffset() + textOnCanvasObject.getX() * getZoom();
+                float y = getCurrentYOffset() + textOnCanvasObject.getY() * getZoom();
+
+                TextPaint textPaint = new TextPaint();
+                textPaint.setColor(Color.GREEN);
+                textPaint.setStrokeWidth(1f);
+                textPaint.setStyle(Paint.Style.FILL);
+                textPaint.setTextSize(30 * getZoom());
+                canvas.drawText(textOnCanvasObject.getText(), x, y, textPaint);
+                canvas.save();
+
+                Log.e(TAG, "Drawing text "+textOnCanvasObject.getText());
+                Log.e(TAG, "Clickedon x/y "+textOnCanvasObject.getX()+"/"+textOnCanvasObject.getY());
+                Log.e(TAG, "Calculated x/y "+x+"/"+y);
+                Log.e(TAG, "Zoom: "+getZoom());
+                Log.e(TAG, "CurrentOffset: "+getCurrentXOffset()+"/"+getCurrentYOffset());
+                Log.e(TAG, "Translation: "+getTranslationX()+"/"+getTranslationY());
+            }
         }
     }
 
 
     public void drawText(String text, float x, float y) {
-        textPaint = new TextPaint();
-        textPaint.setColor(Color.GREEN);
-        textPaint.setStrokeWidth(1f);
-        textPaint.setStyle(Paint.Style.FILL);
-
-        point1X = x;
-        point1Y = y;
-        textToDraw = text;
+        TextOnCanvasObject textOnCanvasObject = new TextOnCanvasObject(text, x, y);
+        textOnCanvasObjects.add(textOnCanvasObject);
 
         invalidate();
     }
