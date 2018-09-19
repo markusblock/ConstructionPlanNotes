@@ -1,13 +1,15 @@
-package com.github.constructionplannotes;
+package com.github.constructionplannotes.model;
 
-import android.graphics.Color;
+import io.realm.RealmObject;
 
 import java.util.Objects;
 
-public class TextOnCanvasObject {
+public class TextOnCanvasObject extends RealmObject {
     private String text;
     private float x;
     private float y;
+
+    public TextOnCanvasObject() { }
 
     public TextOnCanvasObject(String text, float x, float y) {
         this.text = text;

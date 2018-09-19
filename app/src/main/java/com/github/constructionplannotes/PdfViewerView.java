@@ -10,28 +10,39 @@ import android.util.AttributeSet;
 import android.util.Log;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnDrawListener;
+import com.github.constructionplannotes.model.TextOnCanvasObject;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PdfViewerView extends PDFView implements OnDrawListener {
+public class PdfViewerView extends PDFView {
 
     private static final String TAG = PdfViewerView.class.getSimpleName();
 
     private List<TextOnCanvasObject> textOnCanvasObjects;
+    private Realm realm;
 
     public PdfViewerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
-    private void init() {
-        textOnCanvasObjects = new ArrayList<>();
-        resetView();
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        realm.close();
+    }
+
+    public void init() {
+        realm = Realm.getDefaultInstance();
+        RealmResults<TextOnCanvasObject> all = realm.where(TextOnCanvasObject.class).findAll();
+        textOnCanvasObjects = new ArrayList<>(all);
+        invalidate();
     }
 
     public void resetView(){
-        textOnCanvasObjects.clear();
+//        textOnCanvasObjects.clear();
         invalidate();
     }
 
@@ -39,7 +50,7 @@ public class PdfViewerView extends PDFView implements OnDrawListener {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(!textOnCanvasObjects.isEmpty()) {
+        if(textOnCanvasObjects!=null && !textOnCanvasObjects.isEmpty()) {
 
             for (TextOnCanvasObject textOnCanvasObject:textOnCanvasObjects) {
                 float x = getCurrentXOffset() + textOnCanvasObject.getX() * getZoom();
@@ -68,11 +79,10 @@ public class PdfViewerView extends PDFView implements OnDrawListener {
         TextOnCanvasObject textOnCanvasObject = new TextOnCanvasObject(text, x, y);
         textOnCanvasObjects.add(textOnCanvasObject);
 
+        realm.beginTransaction();
+        realm.insertOrUpdate(textOnCanvasObject);
+        realm.commitTransaction();
+
         invalidate();
-    }
-
-    @Override
-    public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage) {
-
     }
 }

@@ -1,6 +1,7 @@
 package com.github.constructionplannotes;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -13,8 +14,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Toast;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
@@ -34,11 +37,11 @@ public class MainActivity extends AppCompatActivity implements OnPageChangeListe
         OnPageErrorListener, OnLongPressListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    private final static int REQUEST_CODE = 42;
+    private static final String SAMPLE_FILE = "sample.pdf";
+    private static final int REQUEST_CODE = 42;
     private static final int PERMISSION_CODE = 42042;
 
-    private static final String SAMPLE_FILE = "sample.pdf";
+
     private static final String READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE";
 
     @ViewById(R.id.pdf_drawer_pdf_viewer)
@@ -58,6 +61,13 @@ public class MainActivity extends AppCompatActivity implements OnPageChangeListe
         super.onCreate(savedInstanceState);
 
         inputDialog = new InputDialog(this );
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        pdfView.init();
     }
 
     @OptionsItem(R.id.pickFile)
